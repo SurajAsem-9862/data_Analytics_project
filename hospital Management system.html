@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SQL Task: Hospital Management System</title>
+<style>
+  :root{
+    --navy:#12233d;
+    --blue:#1d5fa8;
+    --blue-light:#eaf1fa;
+    --border:#d6dfe9;
+    --text:#1b2530;
+    --muted:#5b6b7c;
+    --req:#b3261e;
+    --opt:#6b7280;
+    --default:#0f7a4f;
+    --audit:#8a5a00;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    padding:0;
+    background:#f4f7fb;
+    color:var(--text);
+    font-family:"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.5;
+  }
+  .page{
+    max-width:960px;
+    margin:0 auto;
+    padding:40px 24px 80px;
+  }
+  header.doc-header{
+    text-align:center;
+    margin-bottom:36px;
+  }
+  header.doc-header h1{
+    font-size:28px;
+    color:var(--navy);
+    margin:0 0 6px;
+    letter-spacing:.2px;
+  }
+  header.doc-header p{
+    margin:0;
+    color:var(--muted);
+    font-size:14px;
+  }
+  nav.toc{
+    background:#fff;
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:18px 22px;
+    margin-bottom:24px;
+  }
+  nav.toc h2{
+    font-size:14px;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    color:var(--muted);
+    margin:0 0 10px;
+  }
+  nav.toc ol{
+    columns:2;
+    -webkit-columns:2;
+    margin:0;
+    padding-left:20px;
+    font-size:14px;
+  }
+  nav.toc li{margin-bottom:6px;}
+  nav.toc a{color:var(--blue);text-decoration:none;}
+  nav.toc a:hover{text-decoration:underline;}
+
+  .audit-note{
+    background:#fff8ea;
+    border:1px solid #f0dca6;
+    border-radius:10px;
+    padding:16px 20px;
+    margin-bottom:36px;
+    font-size:13.5px;
+  }
+  .audit-note h2{
+    font-size:13px;
+    text-transform:uppercase;
+    letter-spacing:.06em;
+    color:var(--audit);
+    margin:0 0 8px;
+  }
+  .audit-note code{
+    background:#fff1cf;
+    color:var(--audit);
+    padding:1px 6px;
+    border-radius:4px;
+  }
+  .audit-note p{margin:0 0 6px;}
+  .audit-note p:last-child{margin-bottom:0;}
+
+  section.task{
+    background:#fff;
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:26px 28px 28px;
+    margin-bottom:26px;
+    scroll-margin-top:20px;
+  }
+  section.task.user-table{
+    border:1px solid #cfe3d6;
+    background:#f7fcf9;
+  }
+  section.task h2{
+    font-size:18px;
+    color:var(--navy);
+    margin:0 0 4px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .task-num{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:26px;height:26px;
+    background:var(--blue);
+    color:#fff;
+    border-radius:50%;
+    font-size:13px;
+    font-weight:600;
+    flex:none;
+  }
+  .task-num.foundation{background:var(--default);}
+  .table-name{
+    font-size:13px;
+    color:var(--muted);
+    margin:0 0 16px;
+  }
+  .table-name code{
+    background:var(--blue-light);
+    color:var(--blue);
+    padding:2px 7px;
+    border-radius:4px;
+    font-size:13px;
+  }
+  p.brief{
+    margin:0 0 16px;
+    font-size:14.5px;
+    color:var(--text);
+  }
+  table.fields{
+    width:100%;
+    border-collapse:collapse;
+    font-size:13.5px;
+    margin-bottom:14px;
+  }
+  table.fields th{
+    background:var(--navy);
+    color:#fff;
+    text-align:left;
+    padding:9px 10px;
+    font-weight:600;
+    font-size:12.5px;
+    text-transform:uppercase;
+    letter-spacing:.04em;
+  }
+  table.fields td{
+    padding:8px 10px;
+    border-bottom:1px solid var(--border);
+    vertical-align:top;
+  }
+  table.fields tr:last-child td{border-bottom:none;}
+  table.fields tr:nth-child(even) td{background:#fafbfd;}
+  table.fields tr.audit-row td{background:#fffaf0;}
+  .col-field{font-weight:600; white-space:nowrap;}
+  .col-type{
+    font-family:"Cascadia Code","Consolas",monospace;
+    color:var(--blue);
+    white-space:nowrap;
+  }
+  .req{color:var(--req); font-weight:600;}
+  .opt{color:var(--opt);}
+  .default-val{color:var(--default);}
+  .pk{
+    display:inline-block;
+    background:#fdecea;
+    color:var(--req);
+    border-radius:4px;
+    padding:1px 6px;
+    font-size:11px;
+    font-weight:700;
+    margin-right:4px;
+  }
+  .fk-tag{
+    display:inline-block;
+    background:#eaf3fd;
+    color:var(--blue);
+    border-radius:4px;
+    padding:1px 6px;
+    font-size:11px;
+    font-weight:700;
+    margin-right:4px;
+  }
+  .uq-tag{
+    display:inline-block;
+    background:#eef7f1;
+    color:var(--default);
+    border-radius:4px;
+    padding:1px 6px;
+    font-size:11px;
+    font-weight:700;
+    margin-right:4px;
+  }
+  .audit-tag{
+    display:inline-block;
+    background:#fff1cf;
+    color:var(--audit);
+    border-radius:4px;
+    padding:1px 6px;
+    font-size:11px;
+    font-weight:700;
+    margin-right:4px;
+  }
+  .block{
+    background:var(--blue-light);
+    border-left:3px solid var(--blue);
+    border-radius:0 6px 6px 0;
+    padding:10px 14px;
+    margin-top:12px;
+    font-size:13.5px;
+  }
+  .block strong{color:var(--navy);}
+  .block ul{margin:6px 0 0; padding-left:20px;}
+  .block.constraint{
+    border-left-color:var(--req);
+    background:#fdf3f2;
+  }
+  footer{
+    text-align:center;
+    color:var(--muted);
+    font-size:12px;
+    margin-top:30px;
+  }
+  @media (max-width:640px){
+    nav.toc ol{columns:1;}
+    table.fields{font-size:12px;}
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="doc-header">
+    <h1>SQL Task: Hospital Management System</h1>
+    <p>Schema specification &mdash; 11 tables, precise data types, constraints, audit fields, and IsActive on every table</p>
+  </header>
+
+  <nav class="toc">
+    <h2>Contents</h2>
+    <ol>
+      <li><a href="#task0">User Table <em>(foundation)</em></a></li>
+      <li><a href="#task1">Department Table</a></li>
+      <li><a href="#task2">Doctor Table</a></li>
+      <li><a href="#task3">Patient Table</a></li>
+      <li><a href="#task4">Appointment Table</a></li>
+      <li><a href="#task5">Ward Table</a></li>
+      <li><a href="#task6">Bed Table</a></li>
+      <li><a href="#task7">Inpatient Admission Table</a></li>
+      <li><a href="#task8">Service Master Table</a></li>
+      <li><a href="#task9">IP Service Table</a></li>
+      <li><a href="#task10">Billing Table</a></li>
+    </ol>
+  </nav>
+
+  <div class="audit-note">
+    <h2>Audit standard applied to every table</h2>
+    <p>Each table below ends with the same four audit columns, shown highlighted: <code>CreatedBy</code>, <code>CreatedDate</code>, <code>ModifiedBy</code>, <code>ModifiedDate</code>. <code>CreatedBy</code> and <code>ModifiedBy</code> are <strong>INT foreign keys to <code>User(UserID)</code></strong> &mdash; not free-text names &mdash; so every change is traceable to a real system account.</p>
+    <p><code>CreatedBy</code>/<code>CreatedDate</code> are set once on INSERT and never change. <code>ModifiedBy</code>/<code>ModifiedDate</code> stay NULL until the first UPDATE, then are refreshed on every subsequent UPDATE (via application logic or an <code>AFTER UPDATE</code> trigger). This is why the <code>User</code> table is created first, as the foundation every other table's audit columns depend on.</p>
+  </div>
+
+  <!-- TASK 0: USER (foundation table) -->
+  <section class="task user-table" id="task0">
+    <h2><span class="task-num foundation">U</span>Create User Table</h2>
+    <p class="table-name">Table: <code>User</code></p>
+    <p class="brief">Store system login accounts for hospital staff (admins, doctors, receptionists, billing staff, etc.). Every <code>CreatedBy</code>/<code>ModifiedBy</code> audit column across the schema references <code>UserID</code> here, so this table must exist before the others.</p>
+    <table class="fields">
+      <thead><tr><th>Field</th><th>Data Type</th><th>Constraint</th></tr></thead>
+      <tbody>
+        <tr><td class="col-field">UserID</td><td class="col-type">INT</td><td><span class="pk">PK</span><span class="req">IDENTITY(1,1), NOT NULL</span></td></tr>
+        <tr><td class="col-field">Username</td><td class="col-type">VARCHAR(50)</td><td><span class="uq-tag">UQ</span><span class="req">NOT NULL, UNIQUE</span></td></tr>
+        <tr><td class="col-field">PasswordHash</td><td class="col-type">VARCHAR(256)</td><td><span class="req">NOT NULL &mdash; store a salted hash, never plain text</span></td></tr>
+        <tr><td class="col-field">FullName</td><td class="col-type">VARCHAR(150)</td><td><span class="req">NOT NULL</span></td></tr>
+        <tr><td class="col-field">Role</td><td class="col-type">VARCHAR(50)</td><td><span class="req">NOT NULL &mdash; e.g. Admin, Doctor, Receptionist, Billing, Nurse</span></td></tr>
+        <tr><td class="col-field">DoctorID</td><td class="col-type">INT</td><td><span class="fk-tag">FK</span><span class="opt">NULL &rarr; Doctor.DoctorID (set only when Role = 'Doctor')</span></td></tr>
+        <tr><td class="col-field">Email</td><td class="col-type">VARCHAR(150)</td><td><span class="uq-tag">UQ</span><span class="opt">NULL, UNIQUE when provided</span></td></tr>
+        <tr><td class="col-field">MobileNo</td><td class="col-type">VARCHAR(20)</td><td><span class="opt">NULL</span></td></tr>
+        <tr><td class="col-field">IsActive</td><td class="col-type">BIT</td><td><span class="default-val">DEFAULT 1</span></td></tr>
+        <tr><td class="col-field">LastLoginDate</td><td class="col-type">DATETIME</td><td><span class="opt">NULL</span></td></tr>
+        <tr class="audit-row"><td class="col-field">CreatedBy</td><td class="col-type">INT</td><td><span class="audit-tag">AUDIT</span><span class="fk-tag">FK</span><span class="opt">NULL &rarr; User.UserID (self-reference; nullable for the first/seed account)</span></td></tr>
+        <tr class="audit-row"><td class="col-field">CreatedDate</td><td class="col-type">DATETIME</td><td><span class="audit-tag">AUDIT</span><span class="default-val">DEFAULT GETDATE()</span></td></tr>
+        <tr class="audit-row"><td class="col-field">ModifiedBy</td><td class="col-type">INT</td><td><span class="audit-tag">AUDIT</span><span class="fk-tag">FK</span><span class="opt">NULL &rarr; User.UserID (self-reference)</span></td></tr>
+        <tr class="audit-row"><td class="col-field">ModifiedDate</td><td class="col-type">DATETIME</td><td><span class="audit-tag">AUDIT</span><span class="opt">NULL</span></td></tr>
+      </tbody>
+    </table>
+    <div class="block">
+      <strong>Relationships</strong>
+      <ul>
+        <li><code>DoctorID</code> &rarr; <code>Doctor(DoctorID)</code> &mdash; optional, links a login account to its doctor profile</li>
+        <li><code>CreatedBy</code> / <code>ModifiedBy</code> &rarr; <code>User(UserID)</code> &mdash; self-referencing</li>
+      </ul>
+    </div>
+    <div class="block constraint">
+      <strong>Constraint</strong>
+      <ul><li>Because <code>Doctor</code> is created after <code>User</code> but <code>User.DoctorID</code> references it, add this foreign key with an <code>ALTER TABLE</code> once <code>Doctor</code> exists (or defer FK creation until both tables are in place).</li></ul>
+    </div>
+  </section>
+
+  <!-- TASK 1 -->
+  <section class="task" id="task1">
+    <h2><span class="task-num">1</span>Create Department Table</h2>
+    <p class="table-name">Table: <code>Department</code></p>
+    <p class="brief">Store master data for each hospital department (e.g., Cardiology, Orthopedics). Every doctor is later linked to exactly one department.</p>
+    <table class="fields">
+      <thead><tr><th>Field</th><th>Data Type</th><th>Constraint</th></tr></thead>
+      <tbody>
+        <tr><td class="col-field">DepartmentID</td><td class="col-type">INT</td><td><span class="pk">PK</span><span class="req">IDENTITY(1,1), NOT NULL</span></td></tr>
+        <tr><td class="col-field">DepartmentName</td><td class="col-type">VARCHAR(100)</td><td><span class="req">NOT NULL</span></td></tr>
+        <tr><td class="col-field">Description</td><td class="col-type">VARCHAR(500)</td><td><span class="opt">NULL</span></td></tr>
+        <tr><td class="col-field">IsActive</td><td class="col-type">BIT</td><td><span class="default-val">DEFAULT 1</span></td></tr>
+        <tr class="audit-row"><td class="col-field">CreatedBy</td><td class="col-type">INT</td><td><span class="audit-tag">AUDIT</span><span class="fk-tag">FK</span><span class="req">NOT NULL &rarr; User.UserID</span></td></tr>
+        <tr class="audit-row"><td class="col-field">CreatedDate</td><td class="col-type">DATETIME</td><td><span class="audit-tag">AUDIT</span><span class="default-val">DEFAULT GETDATE()</span></td></tr>
+        <tr class="audit-row"><td class="col-field">ModifiedBy</td><td class="col-type">INT</td><td><span class="audit-tag">AUDIT</span><span class="fk-tag">FK</span><span class="opt">NULL &rarr; User.UserID</span></td></tr>
+        <tr class="audit-row"><td class="col-field">ModifiedDate</td><td class="col-type">DATETIME</td><td><span class="audit-tag">AUDIT</span><span class="opt">NULL</span></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- TASK 2 -->
+  <section class="task" id="task2">
+    <h2><span class="task-num">2</span>Create Doctor Table</h2>
+    <p class="table-name">Table: <code>Doctor</code></p>
+    <p class="brief">Store profile and credential details for every doctor employed by the hospital, each tied to one department.</p>
+    <table class="fields">
+      <thead><tr><th>Field</th><th>Data Type</th><th>Constraint</th></tr></thead>
+      <tbody>
+        <tr><td class="col-field">DoctorID</td><td class="col-type">INT</td><td><span class="pk">PK</span><span class="req">IDENTITY(1,1), NOT NULL</span></td></tr>
+        <tr><td class="col-field">DoctorCode</td><td class="col-type">VARCHAR(20)</td><td><span class="uq-tag">UQ</span><span class="req">NOT NULL, UNIQUE</span></td></tr>
+        <tr><td class="col-field">DoctorName</td><td class="col-type">VARCHAR(150)</td><td><span class="req">NOT NULL</span></td></tr>
+        <tr><td class="col-field">DepartmentID</td><td class="col-type">INT</td><td><span class="fk-tag">FK</span><span class="req">NOT NULL &rarr; Department.DepartmentID</span></td></tr>
+        <tr><td class="col-field">Specialization</td><td class="col-type">VARCHAR(100)</td><td><span class="opt">NULL</span></td></tr>
+        <tr><td class="col-field">Qualification</td><td class="col-type">VARCHAR(200)</td><td><span class="opt">NULL</span></td></tr>
+        <tr><td class="col-field">MobileNo</td><td class="col-type">VARCHAR(20)</td><td><span class="opt">NULL</span></td></tr>
+        <tr><td class="col-field">Email</td><td class="col-type">VARCHAR(150)</td><td><span class="opt">NULL</span></td></tr>
+        <tr><td class="col-field">RegistrationNo</td><td class="col-type">VARCHAR(50)</td><td><span class="opt">NULL</span></td></tr>
+        <tr><td class="col-field">IsActive</td><td class="col-type">BIT</td><td><span class="default-val">DEFAULT 1</span></td></tr>
+        <tr class="audit-row"><td class="col-field">CreatedBy</td><td class="col-type">INT</td><td><span class="audit-tag">AUDIT</span><span class="fk-tag">FK</span><span class="req">NOT NULL &rarr; User.UserID</span></td></tr>
+        <tr class="audit-row"><td class="col-field">CreatedDate</td><td class="col-type">DATETIME</td><td><span class="audit-tag">AUDIT</span><span class="default-val">DEFAULT GETDATE()</span></td></tr>
+        <tr class="audit-row"><td class="col-field">ModifiedBy</td><td class="col-type">INT</td><td><span class="audit-tag">AUDIT</span><span class="fk-tag">FK</span><span class="opt">NULL &rarr; User.UserID</span></td></tr>
+        <tr class="audit-row"><td class="col-field">ModifiedDate</td><td class="col-type">DATETIME</td><td><span class="audit-tag">AUDIT</span><span class="opt">NULL</span></td></tr>
+      </tbody>
+    </table>
+    <div class="block">
+      <strong>Relationship</strong>
+      <ul><li><code>DepartmentID</code> references <code>Department(DepartmentID)</code>.</li></ul>
+    </div>
+  </section>
+
+  <!-- TASK 3 -->
+  <section class="task" id="task3">
+    <h2><span class="task-num">3</span>Create Patient Table</h2>
+    <p class="table-name">Table: <code>Patient</code></p>
+    <p class="brief">Store registration and contact details for every patient, identified uniquely by a hospital-issued UHID.</p>
+    <table class="fields">
+      <thead><tr><th>Field</th><th>Data Type</th><th>Constraint</th></tr></thead>
+      <tbody>
+        <tr><td class="col-field">PatientID</td><td class="col-type">BIGINT</td><td><span class="pk">PK</span><span class="req">IDENTITY(1,1), NOT NULL</span></td></tr>
+        <tr><td class="col-field">UHID</td><td class="col-type">VARCHAR(30)</td><td><span class="uq-tag">UQ</span><span class="req">NOT NULL, UNIQUE</span></td></tr>
+        <tr><td class="col-field">PatientName</td><td class="col-type">VARCHAR(150)</td><td><span class="req">NOT NULL</span></td></tr>
+        <tr><td class="col-field">Gender</td><td class="col-type">CHAR(1)</td><td><span class="opt">NULL &mdash; 'M' / 'F' / 'O'</span></td></tr>
+        <tr><td class="col-field">DateOfBirth</td><td class="col-type">DATE</td><td><span class="opt">NULL</span></td></tr>
+        <tr><td class="col-field">BloodGroup</td><td class="col-type">VARCHAR(5)</td><td><span class="opt">NULL</span></td></tr>
+        <tr><td class="col-field">MobileNo</td><td class="col-type">VARCHAR(20)</td><td><span class="opt">NULL</span></td></tr>
+        <tr><td class="col-field">Email</td><td class="col-type">VARCHAR(150)</td><td><span class="opt">NULL</span></td></tr>
+        <tr><td class="col-field">Address</td><td class="col-type">VARCHAR(500)</td><td><span class="opt">NULL</span></td></tr>
+        <tr><td class="col-field">City</td><td class="col-type">VARCHAR(100)</td><td><span class="opt">NULL</span></td></tr>
+        <tr><td class="col-field">State</td><td class="col-type">VARCHAR(100)</td><td><span class="opt">NULL</span></td></tr>
+        <tr><td class="col-field">PinCode</td><td class="col-type">VARCHAR(10)</td><td><span class="opt">NULL</span></td></tr>
+        <tr><td class="col-field">EmergencyContactName</td><td class="col-type">VARCHAR(150)</td><td><span class="opt">NULL</span></td></tr>
+        <tr><td class="col-field">EmergencyContactNo</td><td class="col-type">VARCHAR(20)</td><td><span class="opt">NULL</span></td></tr>
+        <tr><td class="col-field">RegistrationDate</td><td class="col-type">DATETIME</td><td><span class="default-val">DEFAULT GETDATE()</span></td></tr>
+        <tr><td class="col-field">IsActive</td><td class="col-type">BIT</td><td><span class="default-val">DEFAULT 1</span></td></tr>
+        <tr class="audit-row"><td class="col-field">CreatedBy</td><td class="col-type">INT</td><td><span class="audit-tag">AUDIT</span><span class="fk-tag">FK</span><span class="req">NOT NULL &rarr; User.UserID</span></td></tr>
+        <tr class="audit-row"><td class="col-field">CreatedDate</td><td class="col-type">DATETIME</td><td><span class="audit-tag">AUDIT</span><span class="default-val">DEFAULT GETDATE()</span></td></tr>
+        <tr class="audit-row"><td class="col-field">ModifiedBy</td><td class="col-type">INT</td><td><span class="audit-tag">AUDIT</span><span class="fk-tag">FK</span><span class="opt">NULL &rarr; User.UserID</span></td></tr>
+        <tr class="audit-row"><td class="col-field">ModifiedDate</td><td class="col-type">DATETIME</td><td><span class="audit-tag">AUDIT</span><span class="opt">NULL</span></td></tr>
+      </tbody>
+    </table>
+    <div class="block">
+      <strong>Note</strong>
+      <ul><li><code>RegistrationDate</code> is the domain-specific "when the patient first registered" field and is kept separate from the generic <code>CreatedDate</code> audit column.</li></ul>
+    </div>
+  </section>
+
+  <!-- TASK 4 -->
+  <section class="task" id="task4">
+    <h2><span class="task-num">4</span>Create Appointment Table</h2>
+    <p class="table-name">Table: <code>Appointment</code></p>
+    <p class="brief">Manage scheduled consultations between a patient and a doctor, tracking date, time, and status through to completion.</p>
+    <table class="fields">
+      <thead><tr><th>Field</th><th>Data Type</th><th>Constraint</th></tr></thead>
+      <tbody>
+        <tr><td class="col-field">AppointmentID</td><td class="col-type">BIGINT</td><td><span class="pk">PK</span><span class="req">IDENTITY(1,1), NOT NULL</span></td></tr>
+        <tr><td class="col-field">PatientID</td><td class="col-type">BIGINT</td><td><span class="fk-tag">FK</span><span class="req">NOT NULL &rarr; Patient.PatientID</span></td></tr>
+        <tr><td class="col-field">DoctorID</td><td class="col-type">INT</td><td><span class="fk-tag">FK</span><span class="req">NOT NULL &rarr; Doctor.DoctorID</span></td></tr>
+        <tr><td class="col-field">AppointmentDate</td><td class="col-type">DATE</td><td><span class="req">NOT NULL</span></td></tr>
+        <tr><td class="col-field">AppointmentTime</td><td class="col-type">TIME</td><td><span class="req">NOT NULL</span></td></tr>
+        <tr><td class="col-field">AppointmentType</td><td class="col-type">VARCHAR(50)</td><td><span class="opt">NULL</span></td></tr>
+        <tr><td class="col-field">Reason</td><td class="col-type">VARCHAR(500)</td><td><span class="opt">NULL</span></td></tr>
+        <tr><td class="col-field">Status</td><td class="col-type">VARCHAR(30)</td><td><span class="default-val">DEFAULT 'Scheduled'</span></td></tr>
+        <tr><td class="col-field">Remarks</td><td class="col-type">VARCHAR(500)</td><td><span class="opt">NULL</span></td></tr>
+        <tr><td class="col-field">IsActive</td><td class="col-type">BIT</td><td><span class="default-val">DEFAULT 1</span></td></tr>
+        <tr class="audit-row"><td class="col-field">CreatedBy</td><td class="col-type">INT</td><td><span class="audit-tag">AUDIT</span><span class="fk-tag">FK</span><span class="req">NOT NULL &rarr; User.UserID</span></td></tr>
+        <tr class="audit-row"><td class="col-field">CreatedDate</td><td class="col-type">DATETIME</td><td><span class="audit-tag">AUDIT</span><span class="default-val">DEFAULT GETDATE()</span></td></tr>
+        <tr class="audit-row"><td class="col-field">ModifiedBy</td><td class="col-type">INT</td><td><span class="audit-tag">AUDIT</span><span class="fk-tag">FK</span><span class="opt">NULL &rarr; User.UserID</span></td></tr>
+        <tr class="audit-row"><td class="col-field">ModifiedDate</td><td class="col-type">DATETIME</td><td><span class="audit-tag">AUDIT</span><span class="opt">NULL</span></td></tr>
+      </tbody>
+    </table>
+    <div class="block">
+      <strong>Relationships</strong>
+      <ul>
+        <li><code>PatientID</code> &rarr; <code>Patient(PatientID)</code></li>
+        <li><code>DoctorID</code> &rarr; <code>Doctor(DoctorID)</code></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- TASK 5 -->
+  <section class="task" id="task5">
+    <h2><span class="task-num">5</span>Create Ward Table</h2>
+    <p class="table-name">Table: <code>Ward</code></p>
+    <p class="brief">Store details of each hospital ward and its bed capacity, grouped by type and floor.</p>
+    <table class="fields">
+      <thead><tr><th>Field</th><th>Data Type</th><th>Constraint</th></tr></thead>
+      <tbody>
+        <tr><td class="col-field">WardID</td><td class="col-type">INT</td><td><span class="pk">PK</span><span class="req">IDENTITY(1,1), NOT NULL</span></td></tr>
+        <tr><td class="col-field">WardName</td><td class="col-type">VARCHAR(100)</td><td><span class="req">NOT NULL</span></td></tr>
+        <tr><td class="col-field">WardType</td><td class="col-type">VARCHAR(50)</td><td><span class="opt">NULL &mdash; e.g. General, ICU, Private</span></td></tr>
+        <tr><td class="col-field">FloorNo</td><td class="col-type">INT</td><td><span class="opt">NULL</span></td></tr>
+        <tr><td class="col-field">Capacity</td><td class="col-type">INT</td><td><span class="req">NOT NULL</span></td></tr>
+        <tr><td class="col-field">IsActive</td><td class="col-type">BIT</td><td><span class="default-val">DEFAULT 1</span></td></tr>
+        <tr class="audit-row"><td class="col-field">CreatedBy</td><td class="col-type">INT</td><td><span class="audit-tag">AUDIT</span><span class="fk-tag">FK</span><span class="req">NOT NULL &rarr; User.UserID</span></td></tr>
+        <tr class="audit-row"><td class="col-field">CreatedDate</td><td class="col-type">DATETIME</td><td><span class="audit-tag">AUDIT</span><span class="default-val">DEFAULT GETDATE()</span></td></tr>
+        <tr class="audit-row"><td class="col-field">ModifiedBy</td><td class="col-type">INT</td><td><span class="audit-tag">AUDIT</span><span class="fk-tag">FK</span><span class="opt">NULL &rarr; User.UserID</span></td></tr>
+        <tr class="audit-row"><td class="col-field">ModifiedDate</td><td class="col-type">DATETIME</td><td><span class="audit-tag">AUDIT</span><span class="opt">NULL</span></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- TASK 6 -->
+  <section class="task" id="task6">
+    <h2><span class="task-num">6</span>Create Bed Table</h2>
+    <p class="table-name">Table: <code>Bed</code></p>
+    <p class="brief">Track individual beds within each ward and their current occupancy status.</p>
+    <table class="fields">
+      <thead><tr><th>Field</th><th>Data Type</th><th>Constraint</th></tr></thead>
+      <tbody>
+        <tr><td class="col-field">BedID</td><td class="col-type">INT</td><td><span class="pk">PK</span><span class="req">IDENTITY(1,1), NOT NULL</span></td></tr>
+        <tr><td class="col-field">WardID</td><td class="col-type">INT</td><td><span class="fk-tag">FK</span><span class="req">NOT NULL &rarr; Ward.WardID</span></td></tr>
+        <tr><td class="col-field">BedNo</td><td class="col-type">VARCHAR(30)</td><td><span class="req">NOT NULL</span></td></tr>
+        <tr><td class="col-field">BedStatus</td><td class="col-type">VARCHAR(30)</td><td><span class="default-val">DEFAULT 'Available'</span></td></tr>
+        <tr><td class="col-field">IsActive</td><td class="col-type">BIT</td><td><span class="default-val">DEFAULT 1</span></td></tr>
+        <tr class="audit-row"><td class="col-field">CreatedBy</td><td class="col-type">INT</td><td><span class="audit-tag">AUDIT</span><span class="fk-tag">FK</span><span class="req">NOT NULL &rarr; User.UserID</span></td></tr>
+        <tr class="audit-row"><td class="col-field">CreatedDate</td><td class="col-type">DATETIME</td><td><span class="audit-tag">AUDIT</span><span class="default-val">DEFAULT GETDATE()</span></td></tr>
+        <tr class="audit-row"><td class="col-field">ModifiedBy</td><td class="col-type">INT</td><td><span class="audit-tag">AUDIT</span><span class="fk-tag">FK</span><span class="opt">NULL &rarr; User.UserID</span></td></tr>
+        <tr class="audit-row"><td class="col-field">ModifiedDate</td><td class="col-type">DATETIME</td><td><span class="audit-tag">AUDIT</span><span class="opt">NULL</span></td></tr>
+      </tbody>
+    </table>
+    <div class="block">
+      <strong>Relationship</strong>
+      <ul><li><code>WardID</code> &rarr; <code>Ward(WardID)</code></li></ul>
+    </div>
+    <div class="block constraint">
+      <strong>Constraint</strong>
+      <ul><li><code>BedNo</code> must be unique within the same ward: <code>UNIQUE (WardID, BedNo)</code>.</li></ul>
+    </div>
+  </section>
+
+  <!-- TASK 7 -->
+  <section class="task" id="task7">
+    <h2><span class="task-num">7</span>Create Inpatient Admission Table</h2>
+    <p class="table-name">Table: <code>IPAdmission</code></p>
+    <p class="brief">Record each hospital admission event for a patient, linking the assigned doctor and bed from admission through to discharge.</p>
+    <table class="fields">
+      <thead><tr><th>Field</th><th>Data Type</th><th>Constraint</th></tr></thead>
+      <tbody>
+        <tr><td class="col-field">IPID</td><td class="col-type">BIGINT</td><td><span class="pk">PK</span><span class="req">IDENTITY(1,1), NOT NULL</span></td></tr>
+        <tr><td class="col-field">IPNo</td><td class="col-type">VARCHAR(30)</td><td><span class="uq-tag">UQ</span><span class="req">NOT NULL, UNIQUE</span></td></tr>
+        <tr><td class="col-field">PatientID</td><td class="col-type">BIGINT</td><td><span class="fk-tag">FK</span><span class="req">NOT NULL &rarr; Patient.PatientID</span></td></tr>
+        <tr><td class="col-field">DoctorID</td><td class="col-type">INT</td><td><span class="fk-tag">FK</span><span class="req">NOT NULL &rarr; Doctor.DoctorID</span></td></tr>
+        <tr><td class="col-field">BedID</td><td class="col-type">INT</td><td><span class="fk-tag">FK</span><span class="req">NOT NULL &rarr; Bed.BedID</span></td></tr>
+        <tr><td class="col-field">AdmissionDate</td><td class="col-type">DATETIME</td><td><span class="req">NOT NULL</span></td></tr>
+        <tr><td class="col-field">DischargeDate</td><td class="col-type">DATETIME</td><td><span class="opt">NULL &mdash; must be &ge; AdmissionDate when set</span></td></tr>
+        <tr><td class="col-field">AdmissionType</td><td class="col-type">VARCHAR(50)</td><td><span class="opt">NULL &mdash; e.g. Emergency, Planned, Referral</span></td></tr>
+        <tr><td class="col-field">AdmissionReason</td><td class="col-type">VARCHAR(500)</td><td><span class="opt">NULL</span></td></tr>
+        <tr><td class="col-field">Diagnosis</td><td class="col-type">VARCHAR(500)</td><td><span class="opt">NULL</span></td></tr>
+        <tr><td class="col-field">Status</td><td class="col-type">VARCHAR(30)</td><td><span class="default-val">DEFAULT 'Admitted'</span></td></tr>
+        <tr><td class="col-field">IsActive</td><td class="col-type">BIT</td><td><span class="default-val">DEFAULT 1</span></td></tr>
+        <tr class="audit-row"><td class="col-field">CreatedBy</td><td class="col-type">INT</td><td><span class="audit-tag">AUDIT</span><span class="fk-tag">FK</span><span class="req">NOT NULL &rarr; User.UserID</span></td></tr>
+        <tr class="audit-row"><td class="col-field">CreatedDate</td><td class="col-type">DATETIME</td><td><span class="audit-tag">AUDIT</span><span class="default-val">DEFAULT GETDATE()</span></td></tr>
+        <tr class="audit-row"><td class="col-field">ModifiedBy</td><td class="col-type">INT</td><td><span class="audit-tag">AUDIT</span><span class="fk-tag">FK</span><span class="opt">NULL &rarr; User.UserID</span></td></tr>
+        <tr class="audit-row"><td class="col-field">ModifiedDate</td><td class="col-type">DATETIME</td><td><span class="audit-tag">AUDIT</span><span class="opt">NULL</span></td></tr>
+      </tbody>
+    </table>
+    <div class="block">
+      <strong>Relationships</strong>
+      <ul>
+        <li><code>PatientID</code> &rarr; <code>Patient(PatientID)</code></li>
+        <li><code>DoctorID</code> &rarr; <code>Doctor(DoctorID)</code></li>
+        <li><code>BedID</code> &rarr; <code>Bed(BedID)</code></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- TASK 8 -->
+  <section class="task" id="task8">
+    <h2><span class="task-num">8</span>Create Service Master Table</h2>
+    <p class="table-name">Table: <code>ServiceMaster</code></p>
+    <p class="brief">Master catalog of billable hospital services &mdash; consultation, room charges, nursing charges, laboratory tests, procedures, etc. &mdash; each with a standard rate and GST rate.</p>
+    <table class="fields">
+      <thead><tr><th>Field</th><th>Data Type</th><th>Constraint</th></tr></thead>
+      <tbody>
+        <tr><td class="col-field">ServiceID</td><td class="col-type">INT</td><td><span class="pk">PK</span><span class="req">IDENTITY(1,1), NOT NULL</span></td></tr>
+        <tr><td class="col-field">ServiceCode</td><td class="col-type">VARCHAR(30)</td><td><span class="uq-tag">UQ</span><span class="req">NOT NULL, UNIQUE</span></td></tr>
+        <tr><td class="col-field">ServiceName</td><td class="col-type">VARCHAR(200)</td><td><span class="req">NOT NULL</span></td></tr>
+        <tr><td class="col-field">ServiceCategory</td><td class="col-type">VARCHAR(100)</td><td><span class="opt">NULL &mdash; e.g. Consultation, Room, Nursing, Lab, Procedure</span></td></tr>
+        <tr><td class="col-field">Rate</td><td class="col-type">DECIMAL(18,2)</td><td><span class="req">NOT NULL, CHECK (Rate &ge; 0)</span></td></tr>
+        <tr><td class="col-field">GSTPercent</td><td class="col-type">DECIMAL(5,2)</td><td><span class="default-val">DEFAULT 0, CHECK (0&ndash;100)</span></td></tr>
+        <tr><td class="col-field">IsActive</td><td class="col-type">BIT</td><td><span class="default-val">DEFAULT 1</span></td></tr>
+        <tr class="audit-row"><td class="col-field">CreatedBy</td><td class="col-type">INT</td><td><span class="audit-tag">AUDIT</span><span class="fk-tag">FK</span><span class="req">NOT NULL &rarr; User.UserID</span></td></tr>
+        <tr class="audit-row"><td class="col-field">CreatedDate</td><td class="col-type">DATETIME</td><td><span class="audit-tag">AUDIT</span><span class="default-val">DEFAULT GETDATE()</span></td></tr>
+        <tr class="audit-row"><td class="col-field">ModifiedBy</td><td class="col-type">INT</td><td><span class="audit-tag">AUDIT</span><span class="fk-tag">FK</span><span class="opt">NULL &rarr; User.UserID</span></td></tr>
+        <tr class="audit-row"><td class="col-field">ModifiedDate</td><td class="col-type">DATETIME</td><td><span class="audit-tag">AUDIT</span><span class="opt">NULL</span></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- TASK 9 -->
+  <section class="task" id="task9">
+    <h2><span class="task-num">9</span>Create IP Service Table</h2>
+    <p class="table-name">Table: <code>IPService</code></p>
+    <p class="brief">Log each billable service consumed by an admitted (IP) patient, capturing quantity, rate, discount, and GST for billing.</p>
+    <table class="fields">
+      <thead><tr><th>Field</th><th>Data Type</th><th>Constraint</th></tr></thead>
+      <tbody>
+        <tr><td class="col-field">IPServiceID</td><td class="col-type">BIGINT</td><td><span class="pk">PK</span><span class="req">IDENTITY(1,1), NOT NULL</span></td></tr>
+        <tr><td class="col-field">IPID</td><td class="col-type">BIGINT</td><td><span class="fk-tag">FK</span><span class="req">NOT NULL &rarr; IPAdmission.IPID</span></td></tr>
+        <tr><td class="col-field">ServiceID</td><td class="col-type">INT</td><td><span class="fk-tag">FK</span><span class="req">NOT NULL &rarr; ServiceMaster.ServiceID</span></td></tr>
+        <tr><td class="col-field">ServiceDate</td><td class="col-type">DATETIME</td><td><span class="default-val">DEFAULT GETDATE()</span></td></tr>
+        <tr><td class="col-field">Quantity</td><td class="col-type">DECIMAL(18,2)</td><td><span class="default-val">DEFAULT 1, CHECK (Quantity &gt; 0)</span></td></tr>
+        <tr><td class="col-field">Rate</td><td class="col-type">DECIMAL(18,2)</td><td><span class="req">NOT NULL, CHECK (Rate &ge; 0)</span></td></tr>
+        <tr><td class="col-field">Discount</td><td class="col-type">DECIMAL(18,2)</td><td><span class="default-val">DEFAULT 0, CHECK (Discount &ge; 0)</span></td></tr>
+        <tr><td class="col-field">GSTAmount</td><td class="col-type">DECIMAL(18,2)</td><td><span class="default-val">DEFAULT 0, CHECK (GSTAmount &ge; 0)</span></td></tr>
+        <tr><td class="col-field">Remarks</td><td class="col-type">VARCHAR(500)</td><td><span class="opt">NULL</span></td></tr>
+        <tr><td class="col-field">IsActive</td><td class="col-type">BIT</td><td><span class="default-val">DEFAULT 1</span></td></tr>
+        <tr class="audit-row"><td class="col-field">CreatedBy</td><td class="col-type">INT</td><td><span class="audit-tag">AUDIT</span><span class="fk-tag">FK</span><span class="req">NOT NULL &rarr; User.UserID</span></td></tr>
+        <tr class="audit-row"><td class="col-field">CreatedDate</td><td class="col-type">DATETIME</td><td><span class="audit-tag">AUDIT</span><span class="default-val">DEFAULT GETDATE()</span></td></tr>
+        <tr class="audit-row"><td class="col-field">ModifiedBy</td><td class="col-type">INT</td><td><span class="audit-tag">AUDIT</span><span class="fk-tag">FK</span><span class="opt">NULL &rarr; User.UserID</span></td></tr>
+        <tr class="audit-row"><td class="col-field">ModifiedDate</td><td class="col-type">DATETIME</td><td><span class="audit-tag">AUDIT</span><span class="opt">NULL</span></td></tr>
+      </tbody>
+    </table>
+    <div class="block">
+      <strong>Relationships</strong>
+      <ul>
+        <li><code>IPID</code> &rarr; <code>IPAdmission(IPID)</code></li>
+        <li><code>ServiceID</code> &rarr; <code>ServiceMaster(ServiceID)</code></li>
+      </ul>
+    </div>
+    <div class="block constraint">
+      <strong>Computed rule</strong>
+      <ul><li>NetAmount = (Quantity &times; Rate) &minus; Discount + GSTAmount &mdash; derive with a computed column or in application/reporting logic.</li></ul>
+    </div>
+  </section>
+
+  <!-- TASK 10 -->
+  <section class="task" id="task10">
+    <h2><span class="task-num">10</span>Create Billing Table</h2>
+    <p class="table-name">Table: <code>Bill</code></p>
+    <p class="brief">Consolidate charges into a single bill per patient (outpatient) or per admission (inpatient), tracking amount due against amount paid.</p>
+    <table class="fields">
+      <thead><tr><th>Field</th><th>Data Type</th><th>Constraint</th></tr></thead>
+      <tbody>
+        <tr><td class="col-field">BillID</td><td class="col-type">BIGINT</td><td><span class="pk">PK</span><span class="req">IDENTITY(1,1), NOT NULL</span></td></tr>
+        <tr><td class="col-field">BillNo</td><td class="col-type">VARCHAR(30)</td><td><span class="uq-tag">UQ</span><span class="req">NOT NULL, UNIQUE</span></td></tr>
+        <tr><td class="col-field">PatientID</td><td class="col-type">BIGINT</td><td><span class="fk-tag">FK</span><span class="req">NOT NULL &rarr; Patient.PatientID</span></td></tr>
+        <tr><td class="col-field">IPID</td><td class="col-type">BIGINT</td><td><span class="fk-tag">FK</span><span class="opt">NULL &rarr; IPAdmission.IPID (outpatient bills leave this NULL)</span></td></tr>
+        <tr><td class="col-field">BillDate</td><td class="col-type">DATETIME</td><td><span class="default-val">DEFAULT GETDATE()</span></td></tr>
+        <tr><td class="col-field">GrossAmount</td><td class="col-type">DECIMAL(18,2)</td><td><span class="default-val">DEFAULT 0, CHECK (&ge; 0)</span></td></tr>
+        <tr><td class="col-field">Discount</td><td class="col-type">DECIMAL(18,2)</td><td><span class="default-val">DEFAULT 0, CHECK (&ge; 0)</span></td></tr>
+        <tr><td class="col-field">TaxAmount</td><td class="col-type">DECIMAL(18,2)</td><td><span class="default-val">DEFAULT 0, CHECK (&ge; 0)</span></td></tr>
+        <tr><td class="col-field">NetAmount</td><td class="col-type">DECIMAL(18,2)</td><td><span class="default-val">DEFAULT 0 &mdash; = GrossAmount &minus; Discount + TaxAmount</span></td></tr>
+        <tr><td class="col-field">PaidAmount</td><td class="col-type">DECIMAL(18,2)</td><td><span class="default-val">DEFAULT 0, CHECK (&ge; 0)</span></td></tr>
+        <tr><td class="col-field">BalanceAmount</td><td class="col-type">DECIMAL(18,2)</td><td><span class="default-val">DEFAULT 0 &mdash; = NetAmount &minus; PaidAmount</span></td></tr>
+        <tr><td class="col-field">Status</td><td class="col-type">VARCHAR(30)</td><td><span class="default-val">DEFAULT 'Pending'</span></td></tr>
+        <tr><td class="col-field">IsActive</td><td class="col-type">BIT</td><td><span class="default-val">DEFAULT 1 &mdash; flags a voided/cancelled bill as inactive</span></td></tr>
+        <tr class="audit-row"><td class="col-field">CreatedBy</td><td class="col-type">INT</td><td><span class="audit-tag">AUDIT</span><span class="fk-tag">FK</span><span class="req">NOT NULL &rarr; User.UserID</span></td></tr>
+        <tr class="audit-row"><td class="col-field">CreatedDate</td><td class="col-type">DATETIME</td><td><span class="audit-tag">AUDIT</span><span class="default-val">DEFAULT GETDATE()</span></td></tr>
+        <tr class="audit-row"><td class="col-field">ModifiedBy</td><td class="col-type">INT</td><td><span class="audit-tag">AUDIT</span><span class="fk-tag">FK</span><span class="opt">NULL &rarr; User.UserID</span></td></tr>
+        <tr class="audit-row"><td class="col-field">ModifiedDate</td><td class="col-type">DATETIME</td><td><span class="audit-tag">AUDIT</span><span class="opt">NULL</span></td></tr>
+      </tbody>
+    </table>
+    <div class="block">
+      <strong>Relationships</strong>
+      <ul>
+        <li><code>PatientID</code> &rarr; <code>Patient(PatientID)</code></li>
+        <li><code>IPID</code> &rarr; <code>IPAdmission(IPID)</code> &mdash; nullable, used only for inpatient bills</li>
+      </ul>
+    </div>
+  </section>
+
+  <footer>Hospital Management System &mdash; SQL schema specification</footer>
+</div>
+</body>
+</html>
